@@ -1,0 +1,69 @@
+import java.math.BigInteger;
+import java.util.Random;
+
+public class ElGamalEncryption {
+    private static Random random = new Random();
+    
+    public static void main(String[] args) {
+        String msg = "encryption";
+        System.out.println("Original Message: " + msg);
+        BigInteger q = getRandomBigInteger(BigInteger.TEN.pow(20), BigInteger.TEN.pow(50));
+        BigInteger g = getRandomBigInteger(BigInteger.TWO, q);
+        BigInteger privateKey = generateKey(q);
+        BigInteger h = g.modPow(privateKey, q);
+        System.out.println("g used: " + g);
+        System.out.println("g^a used: " + h);
+        Object[] encryptedMessage = encrypt(msg, q, h, g);
+        BigInteger p = (BigInteger) encryptedMessage[1];
+        String decryptedMessage = decrypt((BigInteger[]) encryptedMessage[0], p, privateKey, q);
+        System.out.println("Decrypted Message: " + decryptedMessage);
+        
+    }
+    
+    private static BigInteger getRandomBigInteger(BigInteger lower, BigInteger upper) {
+        BigInteger range = upper.subtract(lower);
+        int bits = range.bitLength();
+        BigInteger randomNumber;
+        do {
+            randomNumber = new BigInteger(bits, random);
+            
+        }while (randomNumber.compareTo(range) >= 0);
+        return randomNumber.add(lower); }
+        
+        private static BigInteger generateKey(BigInteger q) {
+            BigInteger key = getRandomBigInteger(BigInteger.TEN.pow(20), q);
+            while (!key.gcd(q).equals(BigInteger.ONE)) {
+                key = getRandomBigInteger(BigInteger.TEN.pow(20), q);
+                
+            }
+            return key;
+            
+        }
+        
+        private static Object[] encrypt(String msg, BigInteger q, BigInteger h, BigInteger g) {
+            BigInteger[] enMsg = new BigInteger[msg.length()];
+            BigInteger k = generateKey(q);
+            BigInteger s = h.modPow(k, q);
+            BigInteger p = g.modPow(k, q);
+            for (int i = 0; i < msg.length(); i++) {
+                enMsg[i] = s.multiply(BigInteger.valueOf(msg.charAt(i)));
+                
+            }
+            System.out.println("g^k used: " + p);
+            System.out.println("g^ak used: " + s);
+            return new Object[]{enMsg, p};
+            
+        }
+        
+        private static String decrypt(BigInteger[] enMsg, BigInteger p, BigInteger key, BigInteger q) {
+            StringBuilder drMsg = new StringBuilder();
+            BigInteger h = p.modPow(key, q);
+            for (BigInteger value : enMsg) {
+                drMsg.append((char) (value.divide(h)).intValue());
+                
+            }
+            return drMsg.toString();
+            
+        }
+    
+}
