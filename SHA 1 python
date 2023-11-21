@@ -1,0 +1,14 @@
+import hashlib
+
+input_str = input("Enter a string: ")
+
+# Create a SHA-1 hash object
+sha1 = hashlib.sha1()
+
+# Update the hash object with the input string encoded as bytes
+sha1.update(input_str.encode('utf-8'))
+
+# Get the hexadecimal representation of the digest
+hashed_str = sha1.hexdigest()
+
+print("Hash value for", input_str,"is:", hashed_str)
