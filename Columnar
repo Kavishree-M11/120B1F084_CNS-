@@ -1,0 +1,99 @@
+import java.util.Scanner;
+
+public class SimpleColumnarTransposition {
+
+    // Encryption function
+    public static String encrypt(String plaintext, String key) {
+        int keyLength = key.length();
+        int textLength = plaintext.length();
+
+        // Calculate the number of rows required in the matrix
+        int numRows = (int) Math.ceil((double) textLength / keyLength);
+
+        // Create a 2D array to hold the characters
+        char[][] matrix = new char[numRows][keyLength];
+
+        // Fill the matrix with the plaintext characters
+        int textIndex = 0;
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < keyLength; j++) {
+                if (textIndex < textLength) {
+                    matrix[i][j] = plaintext.charAt(textIndex);
+                    textIndex++;
+                } else {
+                    matrix[i][j] = ' ';
+                }
+            }
+        }
+
+        // Encrypt the message by reading columns according to the key
+        StringBuilder ciphertext = new StringBuilder();
+        for (int j = 0; j < keyLength; j++) {
+            int col = key.indexOf(key.charAt(j));
+            for (int i = 0; i < numRows; i++) {
+                ciphertext.append(matrix[i][col]);
+            }
+        }
+
+        return ciphertext.toString();
+    }
+
+    // Decryption function
+    public static String decrypt(String ciphertext, String key) {
+        int keyLength = key.length();
+        int textLength = ciphertext.length();
+
+        // Calculate the number of rows required in the matrix
+        int numRows = (int) Math.ceil((double) textLength / keyLength);
+
+        // Calculate the number of characters in the last row
+        int lastRowLength = textLength % keyLength;
+        if (lastRowLength == 0) {
+            lastRowLength = keyLength;
+        }
+
+        // Create a 2D array to hold the characters
+        char[][] matrix = new char[numRows][keyLength];
+
+        // Fill the matrix with the ciphertext characters
+        int textIndex = 0;
+        for (int j = 0; j < keyLength; j++) {
+            int col = key.indexOf(key.charAt(j));
+            for (int i = 0; i < numRows; i++) {
+                if (i == numRows - 1 && j >= lastRowLength) {
+                    matrix[i][col] = ' ';
+                } else {
+                    matrix[i][col] = ciphertext.charAt(textIndex);
+                    textIndex++;
+                }
+            }
+        }
+
+        // Decrypt the message by reading rows
+        StringBuilder plaintext = new StringBuilder();
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < keyLength; j++) {
+                plaintext.append(matrix[i][j]);
+            }
+        }
+
+        return plaintext.toString().trim();
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the plaintext: ");
+        String plaintext = scanner.nextLine();
+
+        System.out.print("Enter the encryption key: ");
+        String key = scanner.nextLine();
+
+        // Encryption
+        String ciphertext = encrypt(plaintext, key);
+        System.out.println("Encrypted Message: " + ciphertext);
+
+        // Decryption
+        String decryptedText = decrypt(ciphertext, key);
+        System.out.println("Decrypted Message: " + decryptedText);
+    }
+}
