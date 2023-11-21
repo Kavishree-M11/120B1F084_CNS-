@@ -1,0 +1,73 @@
+import java.util.Scanner;
+
+public class MorseLock {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Morse with Caeser Cipher");
+        System.out.print("Enter your message: ");
+        String message = scanner.nextLine().toUpperCase();
+
+        System.out.print("Enter Caesar cipher key (an integer): ");
+        int caesarKey = scanner.nextInt();
+        scanner.nextLine();
+
+        // Custom Morse code mapping
+        String[] morseCodeMapping = {
+            ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-",
+            ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--",
+            "-..-", "-.--", "--..", " " // Include space for delimiter
+        };
+
+        // Encryption
+        String encryptedMessage = encrypt(message, caesarKey, morseCodeMapping);
+        System.out.println("Encrypted Message: " + encryptedMessage);
+
+        // Decryption
+        String decryptedMessage = decrypt(encryptedMessage, caesarKey, morseCodeMapping);
+        System.out.println("Decrypted Message: " + decryptedMessage);
+
+        scanner.close();
+    }
+
+    // Encrypt a message using MorseLock
+    public static String encrypt(String message, int caesarKey, String[] morseCodeMapping) {
+        StringBuilder encryptedMessage = new StringBuilder();
+        for (char ch : message.toCharArray()) {
+            if (Character.isLetter(ch)) {
+                // Apply Caesar cipher
+                ch = (char) ('A' + (ch - 'A' - caesarKey + 26) % 26);
+            }
+            if (ch == ' ') {
+                encryptedMessage.append(morseCodeMapping[26]); // Use space as delimiter
+            } else if (Character.isLetter(ch) || Character.isDigit(ch)) {
+                int index = ch - 'A'; // Assuming uppercase letters only
+                encryptedMessage.append(morseCodeMapping[index]);
+                encryptedMessage.append(' '); // Separate Morse code characters
+            }
+        }
+        return encryptedMessage.toString();
+    }
+
+    // Decrypt a MorseLock message
+    public static String decrypt(String encryptedMessage, int caesarKey, String[] morseCodeMapping) {
+        StringBuilder decryptedMessage = new StringBuilder();
+        String[] morseSegments = encryptedMessage.split(" ");
+        for (String segment : morseSegments) {
+            int index = -1;
+            for (int i = 0; i < morseCodeMapping.length; i++) {
+                if (morseCodeMapping[i].equals(segment)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == 26) {
+                decryptedMessage.append(' '); // Restore space delimiter
+            } else if (index >= 0) {
+                char ch = (char) ('A' + (index + caesarKey) % 26);
+                decryptedMessage.append(ch);
+            }
+        }
+        return decryptedMessage.toString();
+    }
+}
