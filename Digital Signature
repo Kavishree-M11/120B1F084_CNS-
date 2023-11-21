@@ -1,0 +1,71 @@
+import java.security.*;
+
+public class DS {
+
+    public static void main(String[] args) throws Exception {
+
+        // Generate key pair
+        KeyPair keyPair = generateKeyPair();
+
+        // Create a message
+        String message = "Cryptography and Network Security";
+
+        // Generate hash value
+        byte[] hashValue = generateHash(message);
+
+        // Generate digital signature
+        byte[] digitalSignature = generateDigitalSignature(hashValue, keyPair.getPrivate());
+
+        // Print message, hash value, keys, signature, and verification status
+        System.out.println("Original Message: " + message);
+        System.out.println("Hash Value: " + bytesToHex(hashValue));
+        System.out.println("Public Key (e): " + ((PublicKey) keyPair.getPublic()).getEncoded());
+        System.out.println("Public Key (n): " + keyPair.getPublic().getAlgorithm());
+        System.out.println("Private Key (d): " + ((PrivateKey) keyPair.getPrivate()).getEncoded());
+        System.out.println("Digital Signature: " + bytesToHex(digitalSignature));
+
+        // Verify digital signature
+        boolean isVerified = verifyDigitalSignature(hashValue, digitalSignature, keyPair.getPublic());
+
+        // Print verification status
+        System.out.println("Signature Verification: " + isVerified);
+    }
+
+    // Generate key pair
+    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    // Generate digital signature
+    public static byte[] generateDigitalSignature(byte[] hashValue, PrivateKey privateKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA1withRSA");
+        signature.initSign(privateKey);
+        signature.update(hashValue);
+        return signature.sign();
+    }
+
+    // Generate hash value
+    public static byte[] generateHash(String message) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        return digest.digest(message.getBytes());
+    }
+
+    // Verify digital signature
+    public static boolean verifyDigitalSignature(byte[] hashValue, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature verifier = Signature.getInstance("SHA1withRSA");
+        verifier.initVerify(publicKey);
+        verifier.update(hashValue);
+        return verifier.verify(signature);
+    }
+
+    // Convert bytes to hexadecimal
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02X", b));
+        }
+        return result.toString();
+    }
+}
