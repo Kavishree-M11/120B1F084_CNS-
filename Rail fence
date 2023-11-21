@@ -1,0 +1,103 @@
+public class RailFenceCipher {
+
+    // Function to encrypt a message using Rail Fence Transposition
+    static String encrypt(String message, int rails) {
+        // Create a 2D array to represent the rail fence structure
+        char[][] railFence = new char[rails][message.length()];
+        
+        // Initialize the array with space characters
+        for (int i = 0; i < rails; i++) {
+            for (int j = 0; j < message.length(); j++) {
+                railFence[i][j] = ' ';
+            }
+        }
+        
+        // Fill in the rail fence with the message characters
+        int row = 0;
+        boolean down = false;
+        
+        for (int i = 0; i < message.length(); i++) {
+            railFence[row][i] = message.charAt(i);
+            
+            // Change direction when reaching the top or bottom rail
+            if (row == 0 || row == rails - 1) {
+                down = !down;
+            }
+            
+            // Move to the next row in the appropriate direction
+            if (down) {
+                row++;
+            } else {
+                row--;
+            }
+        }
+        
+        // Read the encrypted message row by row
+        StringBuilder encryptedMessage = new StringBuilder();
+        for (int i = 0; i < rails; i++) {
+            for (int j = 0; j < message.length(); j++) {
+                if (railFence[i][j] != ' ') {
+                    encryptedMessage.append(railFence[i][j]);
+                }
+            }
+        }
+        
+        return encryptedMessage.toString();
+    }
+  public static String decryptRailFence(String cipherText, int rails) {
+        int textLength = cipherText.length();
+        char[][] railMatrix = new char[rails][textLength];
+        boolean down = false;
+        int row = 0, col = 0;
+
+        // Initialize the rail matrix with placeholders
+        for (int i = 0; i < rails; i++) {
+            for (int j = 0; j < textLength; j++) {
+                railMatrix[i][j] = ' ';
+            }
+        }
+
+        // Fill the rail matrix with the cipherText
+        for (int i = 0; i < textLength; i++) {
+            if (row == 0 || row == rails - 1) {
+                down = !down;
+            }
+
+            railMatrix[row][col] = '*';
+            col++;
+
+            if (down) {
+                row++;
+            } else {
+                row--;
+            }
+        }
+
+        // Reconstruct the plainText
+        int index = 0;
+        char[] plainText = new char[textLength];
+        for (int i = 0; i < rails; i++) {
+            for (int j = 0; j < textLength; j++) {
+                if (railMatrix[i][j] == '*' && index < textLength) {
+                    plainText[j] = cipherText.charAt(index);
+                    index++;
+                }
+            }
+        }
+
+        return new String(plainText);
+    }
+
+
+    public static void main(String[] args) {
+        String message = "HELLOWORLD";
+        int rails = 3;
+
+        String encryptedMessage = encrypt(message, rails);
+        System.out.println("Encrypted Message: " + encryptedMessage);
+
+String decryptedText = decryptRailFence(cipherText, rails);
+        System.out.println("Decrypted Message: " + decryptedText);
+
+    }
+}
