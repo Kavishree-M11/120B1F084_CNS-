@@ -1,0 +1,74 @@
+import java.util.Random;
+import java.util.Scanner;
+
+class Main {
+    public static long compute(long multiplier, long times, long mod) {
+        long result = 1;
+        for (long i = 1; i <= times; i++) {
+            result = (result * multiplier) % mod;
+        }
+        return result % mod;
+    }
+
+    public static long gcd(long a, long b) {
+        if (b == 0) {
+            return a;
+        }
+        return gcd(b, a % b);
+    }
+
+    public static long calculateRandomIntegerForSignature(long q) {
+        long k = 1;
+        while (k <= q - 1) {
+            if (gcd(q - 1, k) == 1) {
+                return k;
+            }
+            k++;
+        }
+        return k;
+    }
+
+//    private static long computeS1(long alp)
+    private static long calculateMultiplicativeInverse(long k, long mod) {
+        long result = 1;
+        while((result * k) % mod != 1) {
+            result++;
+        }
+        return result;
+    }
+
+    public static void verifySignature(long alpha, long m, long q, long s1, long s2, long ya) {
+        long v1 = compute(alpha, m, q);
+        long v2 = (compute(ya, s1, q) * compute(s1, s2, q)) % q;
+        if(v1 == v2) {
+            System.out.print("Signature is valid");
+        }
+        else {
+            System.out.print("Signature is not valid");
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter prime number q: ");
+        long q = sc.nextLong();
+        System.out.print("Enter value of alpha (primitive modulo root of q): ");
+        long alpha = sc.nextLong();
+        Random r = new Random();
+        long xa = r.nextInt((int)q - 2);
+        long ya = compute(alpha, xa, q);
+        System.out.println("A's private key: {" + xa + "}");
+        System.out.printf("A's public key: {%d, %d, %d} %n", q, alpha, ya);
+        System.out.print("Enter the hash value m (0 <= m <= q-1) : ");
+        long m = sc.nextLong();
+        long k = calculateRandomIntegerForSignature(q);
+        long s1 = compute(alpha, k, q);
+        long mik = calculateMultiplicativeInverse(k, q-1);
+        long s2 = (mik * (m - xa * s1)) % (q-1);
+        while(s2 <= 0) {
+            s2 = s2 + (q - 1);
+        }
+        System.out.printf("Digital signature : {%d, %d} %n", s1, s2);
+        verifySignature(alpha, m, q, s1, s2, ya);
+    }
+}
